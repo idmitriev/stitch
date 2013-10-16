@@ -17,13 +17,13 @@ streamSplitter._transform = function (chunk, encoding, done) {
 
 	for(var offset = this._offset, l = this._buffer.length; offset < l; offset++ ) {
 		if ( this._buffer[offset] === settings.MESSAGE_SEPARATOR ) {
-			this.push(this._buffer.toString('ascii', this._offset !== 0 ? this._offset + 1 : 0, offset));
-			this._offset = offset;
+			this.push(this._buffer.toString('ascii', this._offset, offset));
+			this._offset = offset + 1;
 		}
 	}
 
 	if ( this._offset !== 0){
-		this._buffer = this._buffer.slice(this._offset + 1);
+		this._buffer = this._buffer.slice(this._offset);
 		this._offset = 0;
 	}
 
