@@ -11,6 +11,7 @@ liner._transform = function (chunk, encoding, done) {
      this._lastLineData = lines.splice(lines.length-1,1)[0];
  
      lines.forEach(function(line){
+          console.log('sending message, length = ' + line.length);
 		self.push(line + '\n');
      });
      done();

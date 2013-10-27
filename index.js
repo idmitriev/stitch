@@ -4,7 +4,6 @@ var stream = require('stream');
 
 var settings = {
 	MESSAGE_SEPARATOR: 30, // ascii record separator code
-	SEND_BUFFER_SIZE: 42 * 1024
 };
 
 var streamSplitter = new stream.Transform( { objectMode: true } );
@@ -30,14 +29,6 @@ streamSplitter._transform = function (chunk, encoding, done) {
     done();
 };
 
-streamSplitter._flush = function (done) {
-	if (this._buffer && this._buffer.length > 0) {
-		this.push(this._buffer.toString('ascii'));
-	}
-	this._buffer = null;
-	done();
-};
-
 var messageConcater = new stream.Transform();
 
 messageConcater._transform = function (chunk, encoding, done) {
@@ -46,25 +37,11 @@ messageConcater._transform = function (chunk, encoding, done) {
 		return;
 	}
 
-	this._buffer = Buffer.concat([this._buffer, chunk, new Buffer([settings.MESSAGE_SEPARATOR])]);
-
-	if ( this._buffer.length >= settings.SEND_BUFFER_SIZE ){
-		this.push(this._buffer);
-		this._buffer = new Buffer(0);
-	}
+	//TODO output buffering
+	this.push(Buffer.concat([chunk, new Buffer([settings.MESSAGE_SEPARATOR])]));
 
     done();
 };
-
-messageConcater._flush = function (done) {
-
-	if (this._buffer && this._buffer.length > 0) {
-		this.push(this._buffer);
-	}
-	this._buffer = null;
-	done();
-};
-
 
 module.exports.createServer = function(messageListener){
 	var server = net.createServer();
